@@ -1,0 +1,734 @@
+Imports Oracle.DataAccess.Client
+
+Public Class Form1
+    Private Sub Form1_Load(sender As System.Object, e As System.EventArgs) Handles MyBase.Load
+
+    End Sub
+    Private Sub btnAddCust_Click(sender As System.Object, e As System.EventArgs) Handles btnAddCust.Click
+        Dim rvConn As New OracleConnection
+        rvConn = CreateConnection1()
+        Dim rvCmd As New OracleCommand
+        rvCmd.Connection = rvConn
+        rvCmd.Parameters.Add("pcustid", OracleDbType.Int16).Direction = ParameterDirection.Input
+        rvCmd.Parameters("pcustid").Value = Val(InputBox("Please Enter Customer ID:"))
+        rvCmd.Parameters.Add("pcustname", OracleDbType.Varchar2).Direction = ParameterDirection.Input
+        rvCmd.Parameters("pcustname").Value = InputBox("Please Enter Customer Name:")
+
+        Try
+            rvConn.Open()
+            rvCmd.CommandText = "ADD_CUSTOMER_TO_DB"
+            rvCmd.CommandType = CommandType.StoredProcedure
+            rvCmd.ExecuteNonQuery()
+            lblDisplayOutput.Text = "Customer Added Ok  "
+        Catch ex As OracleException
+            Select Case ex.Number
+                Case 20001
+                    lblDisplayOutput.Text = ex.Message.ToString
+                Case 20002
+                    lblDisplayOutput.Text = ex.Message.ToString
+                Case 20000
+                    lblDisplayOutput.Text = ex.Message.ToString
+            End Select
+        End Try
+        rvConn.Close()
+    End Sub
+
+
+    Private Sub btnDeleteAllCust_Click(sender As System.Object, e As System.EventArgs) Handles btnDeleteAllCust.Click
+
+        Dim rvConn As New OracleConnection
+        rvConn = CreateConnection1()
+        Dim rvCmd As New OracleCommand
+        rvCmd.Connection = rvConn
+        rvCmd.Parameters.Add("vReturnValue", OracleDbType.Int16).Direction = ParameterDirection.ReturnValue
+        rvCmd.Parameters("vReturnValue").Value = DBNull.Value
+        Try
+            rvConn.Open()
+            rvCmd.CommandText = "DELETE_ALL_CUSTOMERS_FROM_DB"
+            rvCmd.CommandType = CommandType.StoredProcedure
+            Dim obj As Object = rvCmd.ExecuteNonQuery().ToString
+
+            lblDisplayOutput.Text = "All data from the customer table is deleted"
+
+        Catch ex As OracleException
+            Select Case ex.Number
+                Case 20000
+                    lblDisplayOutput.Text = ex.Message.ToString
+            End Select
+        End Try
+        rvConn.Close()
+    End Sub
+
+    Private Sub btnAddProd_Click(sender As System.Object, e As System.EventArgs) Handles btnAddProd.Click
+
+        Dim rvConn As New OracleConnection
+        rvConn = CreateConnection1()
+        Dim rvCmd As New OracleCommand
+        rvCmd.Connection = rvConn
+        rvCmd.Parameters.Add("pprodid", OracleDbType.Int16).Direction = ParameterDirection.Input
+        rvCmd.Parameters("pprodid").Value = Val(InputBox("Please Enter Product ID:"))
+        rvCmd.Parameters.Add("pprodname", OracleDbType.Varchar2).Direction = ParameterDirection.Input
+        rvCmd.Parameters("pprodname").Value = InputBox("Please Enter Product Name:")
+        rvCmd.Parameters.Add("pprodprice", OracleDbType.Decimal).Direction = ParameterDirection.Input
+        rvCmd.Parameters("pprodprice").Value = Val(InputBox("Please Enter Product Price:"))
+        Try
+            rvConn.Open()
+            rvCmd.CommandText = "ADD_PRODUCT_TO_DB"
+            rvCmd.CommandType = CommandType.StoredProcedure
+            rvCmd.ExecuteNonQuery()
+            lblDisplayOutput.Text = "Product Added Ok"
+        Catch ex As OracleException
+            Select Case ex.Number
+                Case 20011
+                    lblDisplayOutput.Text = ex.Message.ToString
+                Case 20012
+                    lblDisplayOutput.Text = ex.Message.ToString
+                Case 20013
+                    lblDisplayOutput.Text = ex.Message.ToString
+                Case 20000
+                    lblDisplayOutput.Text = ex.Message.ToString
+            End Select
+        End Try
+        rvConn.Close()
+    End Sub
+
+    Private Sub btnDeleteAllProd_Click(sender As System.Object, e As System.EventArgs) Handles btnDeleteAllProd.Click
+
+        Dim rvConn As New OracleConnection
+        rvConn = CreateConnection1()
+        Dim rvCmd As New OracleCommand
+        rvCmd.Connection = rvConn
+        rvCmd.Parameters.Add("vReturnValue", OracleDbType.Int16).Direction = ParameterDirection.ReturnValue
+        rvCmd.Parameters("vReturnValue").Value = DBNull.Value
+        Try
+            rvConn.Open()
+            rvCmd.CommandText = "DELETE_ALL_PRODUCTS_FROM_DB"
+            rvCmd.CommandType = CommandType.StoredProcedure
+            rvCmd.ExecuteNonQuery().ToString()
+
+            lblDisplayOutput.Text = "All data from the product table is deleted"
+
+        Catch ex As OracleException
+            Select Case ex.Number
+                Case 20000
+                    lblDisplayOutput.Text = ex.Message.ToString
+            End Select
+        End Try
+        rvConn.Close()
+
+    End Sub
+
+    Private Sub btnGetCustString_Click(sender As System.Object, e As System.EventArgs) Handles btnGetCustString.Click
+        Try
+            Dim rvConn As Oracle.DataAccess.Client.OracleConnection
+            Dim rvCmd As New Oracle.DataAccess.Client.OracleCommand
+            Dim paramOracle As Oracle.DataAccess.Client.OracleParameter
+
+            rvConn = CreateConnection1()
+            rvCmd.Connection = rvConn
+            rvCmd.CommandType = CommandType.StoredProcedure
+            rvCmd.CommandText = "GET_CUST_STRING_FROM_DB"
+
+            paramOracle = New Oracle.DataAccess.Client.OracleParameter
+            paramOracle.ParameterName = "pReturnValue"
+            paramOracle.DbType = DbType.String
+            paramOracle.Size = 200
+            paramOracle.Direction = ParameterDirection.ReturnValue
+            rvCmd.Parameters.Add(paramOracle)
+
+            paramOracle = New Oracle.DataAccess.Client.OracleParameter
+            paramOracle.ParameterName = "pcustid"
+            paramOracle.DbType = DbType.Int16
+            paramOracle.Value = Val(Trim(InputBox("Enter the Customer ID")))
+            paramOracle.Direction = ParameterDirection.Input
+            rvCmd.Parameters.Add(paramOracle)
+            rvConn.Open()
+            rvCmd.ExecuteNonQuery()
+            Dim vStr As String
+            vStr = rvCmd.Parameters.Item("pReturnValue").Value.ToString
+            lblDisplayOutput.Text = vStr
+            rvConn.Close()
+
+        Catch ex As OracleException
+            Select Case ex.Number
+                Case 20021
+                    lblDisplayOutput.Text = ex.Message.ToString
+                Case 20000
+                    lblDisplayOutput.Text = ex.Message.ToString
+            End Select
+        End Try
+    End Sub
+
+    Private Sub btnUpdateCustomerSalesytd_Click(sender As System.Object, e As System.EventArgs) Handles btnUpdateCustomerSalesytd.Click
+        Dim rvConn As New OracleConnection
+        rvConn = CreateConnection1()
+        Dim rvCmd As New OracleCommand
+        rvCmd.Connection = rvConn
+        rvCmd.Parameters.Add("pcustid", OracleDbType.Int16).Direction = ParameterDirection.Input
+        rvCmd.Parameters("pcustid").Value = Val(InputBox("Please Enter Customer ID:"))
+        rvCmd.Parameters.Add("pamt", OracleDbType.Double).Direction = ParameterDirection.Input
+        rvCmd.Parameters("pamt").Value = Val(InputBox("Please Enter Amount:"))
+
+        Try
+            rvConn.Open()
+            rvCmd.CommandText = "UPD_CUST_SALESYTD_IN_DB"
+            rvCmd.CommandType = CommandType.StoredProcedure
+            rvCmd.ExecuteNonQuery()
+            lblDisplayOutput.Text = "Update Ok  "
+        Catch ex As OracleException
+            Select Case ex.Number
+                Case 20021
+                    lblDisplayOutput.Text = ex.Message.ToString
+                Case 20032
+                    lblDisplayOutput.Text = ex.Message.ToString
+                Case 20000
+                    lblDisplayOutput.Text = ex.Message.ToString
+            End Select
+        End Try
+        rvConn.Close()
+    End Sub
+
+
+
+    Private Sub btnGetProdString_Click(sender As System.Object, e As System.EventArgs) Handles btnGetProdString.Click
+        Try
+            Dim rvConn As Oracle.DataAccess.Client.OracleConnection
+            Dim rvCmd As New Oracle.DataAccess.Client.OracleCommand
+            Dim paramOracle As Oracle.DataAccess.Client.OracleParameter
+
+            rvConn = CreateConnection1()
+            rvCmd.Connection = rvConn
+            rvCmd.CommandType = CommandType.StoredProcedure
+            rvCmd.CommandText = "GET_PROD_STRING_FROM_DB"
+
+            paramOracle = New Oracle.DataAccess.Client.OracleParameter
+            paramOracle.ParameterName = "pReturnValue"
+            paramOracle.DbType = DbType.String
+            paramOracle.Size = 200
+            paramOracle.Direction = ParameterDirection.ReturnValue
+            rvCmd.Parameters.Add(paramOracle)
+
+            paramOracle = New Oracle.DataAccess.Client.OracleParameter
+            paramOracle.ParameterName = "pprodid"
+            paramOracle.DbType = DbType.Int16
+            paramOracle.Value = Val(Trim(InputBox("Enter the Product ID")))
+            paramOracle.Direction = ParameterDirection.Input
+            rvCmd.Parameters.Add(paramOracle)
+            rvConn.Open()
+            rvCmd.ExecuteNonQuery()
+            Dim vStr As String
+            vStr = rvCmd.Parameters.Item("pReturnValue").Value.ToString
+            lblDisplayOutput.Text = vStr
+            rvConn.Close()
+
+        Catch ex As OracleException
+            Select Case ex.Number
+                Case 20041
+                    lblDisplayOutput.Text = ex.Message.ToString
+                Case 20000
+                    lblDisplayOutput.Text = ex.Message.ToString
+            End Select
+        End Try
+    End Sub
+
+    Private Sub btnUpdateProdSalesytd_Click(sender As System.Object, e As System.EventArgs) Handles btnUpdateProdSalesytd.Click
+        Dim rvConn As New OracleConnection
+        rvConn = CreateConnection1()
+        Dim rvCmd As New OracleCommand
+        rvCmd.Connection = rvConn
+        rvCmd.Parameters.Add("pprodid", OracleDbType.Int16).Direction = ParameterDirection.Input
+        rvCmd.Parameters("pprodid").Value = Val(InputBox("Please Enter Product ID:"))
+        rvCmd.Parameters.Add("pamt", OracleDbType.Double).Direction = ParameterDirection.Input
+        rvCmd.Parameters("pamt").Value = Val(InputBox("Please Enter Amount:"))
+
+        Try
+            rvConn.Open()
+            rvCmd.CommandText = "UPD_PROD_SALESYTD_IN_DB"
+            rvCmd.CommandType = CommandType.StoredProcedure
+            rvCmd.ExecuteNonQuery()
+            lblDisplayOutput.Text = "Update Ok  "
+        Catch ex As OracleException
+            Select Case ex.Number
+                Case 20051
+                    lblDisplayOutput.Text = ex.Message.ToString
+                Case 20052
+                    lblDisplayOutput.Text = ex.Message.ToString
+                Case 20000
+                    lblDisplayOutput.Text = ex.Message.ToString
+            End Select
+        End Try
+        rvConn.Close()
+    End Sub
+
+    Private Sub btnUpdateCustStatus_Click(sender As System.Object, e As System.EventArgs) Handles btnUpdateCustStatus.Click
+        Dim rvConn As New OracleConnection
+        rvConn = CreateConnection1()
+        Dim rvCmd As New OracleCommand
+        rvCmd.Connection = rvConn
+        rvCmd.Parameters.Add("pcustid", OracleDbType.Int16).Direction = ParameterDirection.Input
+        rvCmd.Parameters("pcustid").Value = Val(InputBox("Please Enter Customer ID:"))
+        rvCmd.Parameters.Add("pstatus", OracleDbType.Varchar2).Direction = ParameterDirection.Input
+        rvCmd.Parameters("pstatus").Value = InputBox("Please Enter Status:")
+
+        Try
+            rvConn.Open()
+            rvCmd.CommandText = "UPD_CUST_STATUS_IN_DB"
+            rvCmd.CommandType = CommandType.StoredProcedure
+            rvCmd.ExecuteNonQuery()
+            lblDisplayOutput.Text = "Update Ok"
+        Catch ex As OracleException
+            Select Case ex.Number
+                Case 20061
+                    lblDisplayOutput.Text = ex.Message.ToString
+                Case 20062
+                    lblDisplayOutput.Text = ex.Message.ToString
+                Case 20000
+                    lblDisplayOutput.Text = ex.Message.ToString
+            End Select
+        End Try
+        rvConn.Close()
+    End Sub
+
+    Private Sub btnAddSimpleSale_Click(sender As System.Object, e As System.EventArgs) Handles btnAddSimpleSale.Click
+        Dim rvConn As New OracleConnection
+        rvConn = CreateConnection1()
+        Dim rvCmd As New OracleCommand
+        rvCmd.Connection = rvConn
+        rvCmd.Parameters.Add("pcustid", OracleDbType.Int16).Direction = ParameterDirection.Input
+        rvCmd.Parameters("pcustid").Value = Val(InputBox("Please Enter Customer ID:"))
+        rvCmd.Parameters.Add("pprodid", OracleDbType.Varchar2).Direction = ParameterDirection.Input
+        rvCmd.Parameters("pprodid").Value = InputBox("Please Enter Product ID:")
+        rvCmd.Parameters.Add("pqty", OracleDbType.Decimal).Direction = ParameterDirection.Input
+        rvCmd.Parameters("pqty").Value = Val(InputBox("Please Enter Quantity:"))
+        Try
+            rvConn.Open()
+            rvCmd.CommandText = "ADD_SIMPLE_SALE_TO_DB"
+            rvCmd.CommandType = CommandType.StoredProcedure
+            rvCmd.ExecuteNonQuery()
+            lblDisplayOutput.Text = "Added Simple Sale Ok"
+        Catch ex As OracleException
+            Select Case ex.Number
+                Case 20071
+                    lblDisplayOutput.Text = ex.Message.ToString
+                Case 20072
+                    lblDisplayOutput.Text = ex.Message.ToString
+                Case 20073
+                    lblDisplayOutput.Text = ex.Message.ToString
+                Case 20074
+                    lblDisplayOutput.Text = ex.Message.ToString
+                Case 20000
+                    lblDisplayOutput.Text = ex.Message.ToString
+            End Select
+        End Try
+        rvConn.Close()
+    End Sub
+
+    Private Sub btnSumCustSalesytd_Click(sender As System.Object, e As System.EventArgs) Handles btnSumCustSalesytd.Click
+        Try
+            Dim rvConn As Oracle.DataAccess.Client.OracleConnection
+            Dim rvCmd As New Oracle.DataAccess.Client.OracleCommand
+            Dim paramOracle As Oracle.DataAccess.Client.OracleParameter
+
+            rvConn = CreateConnection1()
+            rvCmd.Connection = rvConn
+            rvCmd.CommandType = CommandType.StoredProcedure
+            rvCmd.CommandText = "SUM_CUST_SALESYTD_FROM_DB"
+
+            paramOracle = New Oracle.DataAccess.Client.OracleParameter
+            paramOracle.ParameterName = "pReturnValue"
+            paramOracle.DbType = DbType.String
+            paramOracle.Size = 200
+            paramOracle.Direction = ParameterDirection.ReturnValue
+            rvCmd.Parameters.Add(paramOracle)
+
+            rvConn.Open()
+            rvCmd.ExecuteNonQuery()
+            Dim vStr As String
+            vStr = rvCmd.Parameters.Item("pReturnValue").Value.ToString
+            lblDisplayOutput.Text = "SalesYTD: " & vStr
+            rvConn.Close()
+
+        Catch ex As OracleException
+            Select Case ex.Number
+                Case 20041
+                    lblDisplayOutput.Text = ex.Message.ToString
+                Case 20000
+                    lblDisplayOutput.Text = ex.Message.ToString
+            End Select
+        End Try
+    End Sub
+
+
+    Private Sub btnGetAllCust_Click(sender As System.Object, e As System.EventArgs) Handles btnGetAllCust.Click
+
+
+        Try
+            Dim rvConn As New OracleConnection
+            Dim rvCmd As New Oracle.DataAccess.Client.OracleCommand
+            Dim paramOracle As New Oracle.DataAccess.Client.OracleParameter
+            rvConn = CreateConnection1()
+            rvCmd.Connection = rvConn
+            rvCmd.CommandType = CommandType.StoredProcedure
+            rvCmd.CommandText = "GET_ALLCUST_PACKAGE.GET_ALLCUST_FROM_DB"
+
+            paramOracle = New Oracle.DataAccess.Client.OracleParameter
+            paramOracle.ParameterName = "pReturnValue"
+            paramOracle.OracleDbType = Oracle.DataAccess.Client.OracleDbType.RefCursor
+            paramOracle.Direction = ParameterDirection.ReturnValue
+            rvCmd.Parameters.Add(paramOracle)
+
+            rvConn.Open()
+
+            Dim readerOracle As Oracle.DataAccess.Client.OracleDataReader
+
+            readerOracle = rvCmd.ExecuteReader()
+            If readerOracle.HasRows = True Then
+                lblDisplayOutput.Text = " "
+
+                Do While readerOracle.Read()
+
+                    lblDisplayOutput.Text += ("CustID: " + readerOracle("CUSTID").ToString & "  CustName:  " & readerOracle("CUSTNAME") & "  Status: " & readerOracle("STATUS") & "  Sales_YTD: " & readerOracle("SALES_YTD")) & vbNewLine
+
+                Loop
+            End If
+            readerOracle.Close()
+
+        Catch ex As OracleException
+            Select Case ex.Number
+                Case 20000
+                    lblDisplayOutput.Text = ex.Message.ToString
+            End Select
+        End Try
+
+
+
+
+    End Sub
+
+
+    Private Sub btnGetAllProd_Click(sender As System.Object, e As System.EventArgs) Handles btnGetAllProd.Click
+        Try
+            Dim rvConn As New OracleConnection
+            Dim rvCmd As New Oracle.DataAccess.Client.OracleCommand
+            Dim paramOracle As New Oracle.DataAccess.Client.OracleParameter
+            rvConn = CreateConnection1()
+            rvCmd.Connection = rvConn
+            rvCmd.CommandType = CommandType.StoredProcedure
+            rvCmd.CommandText = "GET_ALLPROD_PACKAGE.GET_ALLPROD_FROM_DB"
+
+            paramOracle = New Oracle.DataAccess.Client.OracleParameter
+            paramOracle.ParameterName = "pReturnValue"
+            paramOracle.OracleDbType = Oracle.DataAccess.Client.OracleDbType.RefCursor
+            paramOracle.Direction = ParameterDirection.ReturnValue
+            rvCmd.Parameters.Add(paramOracle)
+
+            rvConn.Open()
+
+            Dim readerOracle As Oracle.DataAccess.Client.OracleDataReader
+
+            readerOracle = rvCmd.ExecuteReader()
+            If readerOracle.HasRows = True Then
+                lblDisplayOutput.Text = " "
+
+                Do While readerOracle.Read()
+                    lblDisplayOutput.Text += ("ProdID: " + readerOracle("PRODID").ToString & "  ProdName:  " & readerOracle("PRODNAME") & "  Price: " & readerOracle("SELLING_PRICE") & "  Sales_YTD: " & readerOracle("SALES_YTD")) & vbNewLine
+
+                Loop
+            End If
+            readerOracle.Close()
+
+        Catch ex As OracleException
+            Select Case ex.Number
+                Case 20000
+                    lblDisplayOutput.Text = ex.Message.ToString
+            End Select
+        End Try
+
+
+    End Sub
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    Public Function CreateConnection1() As Oracle.DataAccess.Client.OracleConnection
+        Dim rvConn As New Oracle.DataAccess.Client.OracleConnection
+        rvConn.ConnectionString = GetConnectionString()
+        Return rvConn
+    End Function
+    Function GetConnectionString() As String
+
+        Dim vConnStr As String
+        vConnStr = "Data Source=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)"
+        vConnStr = vConnStr & "(HOST=ictoraclesvm1.ict.swin.edu.au)(PORT=1521))"
+        vConnStr = vConnStr & "(CONNECT_DATA=(SID=dms)));"
+        vConnStr = vConnStr & "User Id=s4949773;"
+        vConnStr = vConnStr & "Password=bhavna07;"
+        MessageBox.Show(vConnStr)
+
+        Return vConnStr
+    End Function
+
+
+    
+    Private Sub btnAddComplexSale_Click(sender As System.Object, e As System.EventArgs) Handles btnAddComplexSale.Click
+
+        Dim rvConn As New OracleConnection
+        rvConn = CreateConnection1()
+        Dim rvCmd As New OracleCommand
+        rvCmd.Connection = rvConn
+        rvCmd.Parameters.Add("pcustid", OracleDbType.Int16).Direction = ParameterDirection.Input
+        rvCmd.Parameters("pcustid").Value = Val(InputBox("Please Enter Customer ID:"))
+        rvCmd.Parameters.Add("pprodid", OracleDbType.Int16).Direction = ParameterDirection.Input
+        rvCmd.Parameters("pprodid").Value = Val(InputBox("Please Enter Product ID:"))
+        rvCmd.Parameters.Add("pqty", OracleDbType.Int16).Direction = ParameterDirection.Input
+        rvCmd.Parameters("pqty").Value = Val(InputBox("Please Enter Product Quantity:"))
+        rvCmd.Parameters.Add("pdate", OracleDbType.Varchar2).Direction = ParameterDirection.Input
+        rvCmd.Parameters("pdate").Value = Val(InputBox("Please Enter Date:"))
+        Try
+            rvConn.Open()
+            rvCmd.CommandText = "ADD_COMPLEX_SALE_TO_DB"
+            rvCmd.CommandType = CommandType.StoredProcedure
+            rvCmd.ExecuteNonQuery()
+            lblDisplayOutput.Text = "Added Complex Sale Ok"
+        Catch ex As OracleException
+            Select Case ex.Number
+                Case 20091
+                    lblDisplayOutput.Text = ex.Message.ToString
+                Case 20092
+                    lblDisplayOutput.Text = ex.Message.ToString
+                Case 20093
+                    lblDisplayOutput.Text = ex.Message.ToString
+                Case 20094
+                    lblDisplayOutput.Text = ex.Message.ToString
+                Case 20095
+                    lblDisplayOutput.Text = ex.Message.ToString
+                Case 20000
+                    lblDisplayOutput.Text = ex.Message.ToString
+            End Select
+        End Try
+        rvConn.Close()
+    End Sub
+
+    Private Sub btnGetAllSales_Click(sender As System.Object, e As System.EventArgs) Handles btnGetAllSales.Click
+
+        Try
+            Dim rvConn As New OracleConnection
+            Dim rvCmd As New Oracle.DataAccess.Client.OracleCommand
+            Dim paramOracle As New Oracle.DataAccess.Client.OracleParameter
+            rvConn = CreateConnection1()
+            rvCmd.Connection = rvConn
+            rvCmd.CommandType = CommandType.StoredProcedure
+            rvCmd.CommandText = "GET_ALLSALES_PACKAGE.GET_ALLSALES_FROM_DB"
+
+            paramOracle = New Oracle.DataAccess.Client.OracleParameter
+            paramOracle.ParameterName = "pReturnValue"
+            paramOracle.OracleDbType = Oracle.DataAccess.Client.OracleDbType.RefCursor
+            paramOracle.Direction = ParameterDirection.ReturnValue
+            rvCmd.Parameters.Add(paramOracle)
+
+            rvConn.Open()
+
+            Dim readerOracle As Oracle.DataAccess.Client.OracleDataReader
+
+            readerOracle = rvCmd.ExecuteReader()
+            If readerOracle.HasRows = True Then
+                lblDisplayOutput.Text = " "
+
+                Do While readerOracle.Read()
+
+                    lblDisplayOutput.Text += ("SalesID: " + readerOracle("SALEID").ToString & "  CustId:  " & readerOracle("CUSTID") & "  ProdId: " & readerOracle("PRODID") & "  Quantity: " & readerOracle("QTY") & "  Price: " & readerOracle("PRICE") & "  Date: " & readerOracle("SALEDATE")) & vbNewLine
+
+                Loop
+            End If
+            readerOracle.Close()
+
+        Catch ex As OracleException
+            Select Case ex.Number
+                Case 20000
+                    lblDisplayOutput.Text = ex.Message.ToString
+            End Select
+        End Try
+
+
+
+
+
+
+
+    End Sub
+
+
+
+    Private Sub btnCountProductSales_Click(sender As System.Object, e As System.EventArgs) Handles btnCountProductSales.Click
+
+        Try
+            Dim rvConn As Oracle.DataAccess.Client.OracleConnection
+            Dim rvCmd As New Oracle.DataAccess.Client.OracleCommand
+            Dim paramOracle As Oracle.DataAccess.Client.OracleParameter
+
+            rvConn = CreateConnection1()
+            rvCmd.Connection = rvConn
+            rvCmd.CommandType = CommandType.StoredProcedure
+            rvCmd.CommandText = "COUNT_PRODUCT_SALES_FROM_DB"
+
+            paramOracle = New Oracle.DataAccess.Client.OracleParameter
+            paramOracle.ParameterName = "pReturnValue"
+            paramOracle.DbType = DbType.Int16
+            paramOracle.Size = 200
+            paramOracle.Direction = ParameterDirection.ReturnValue
+            rvCmd.Parameters.Add(paramOracle)
+
+            paramOracle = New Oracle.DataAccess.Client.OracleParameter
+            paramOracle.ParameterName = "pdays"
+            paramOracle.DbType = DbType.Int16
+            paramOracle.Value = Val(Trim(InputBox("Enter the number of days")))
+            paramOracle.Direction = ParameterDirection.Input
+            rvCmd.Parameters.Add(paramOracle)
+            rvConn.Open()
+            rvCmd.ExecuteNonQuery()
+            Dim vStr As String
+            vStr = rvCmd.Parameters.Item("pReturnValue").Value.ToString
+            lblDisplayOutput.Text = vStr
+            rvConn.Close()
+
+        Catch ex As OracleException
+            Select Case ex.Number
+                Case 20000
+                    lblDisplayOutput.Text = ex.Message.ToString
+            End Select
+        End Try
+
+
+    End Sub
+
+    Private Sub btnDeleteSale_Click(sender As System.Object, e As System.EventArgs) Handles btnDeleteSale.Click
+
+        Try
+            Dim rvConn As Oracle.DataAccess.Client.OracleConnection
+            Dim rvCmd As New Oracle.DataAccess.Client.OracleCommand
+            Dim paramOracle As Oracle.DataAccess.Client.OracleParameter
+
+            rvConn = CreateConnection1()
+            rvCmd.Connection = rvConn
+            rvCmd.CommandType = CommandType.StoredProcedure
+            rvCmd.CommandText = "DELETE_SALE_FROM_DB"
+
+            paramOracle = New Oracle.DataAccess.Client.OracleParameter
+            paramOracle.ParameterName = "pReturnValue"
+            paramOracle.DbType = DbType.Int16
+            paramOracle.Size = 200
+            paramOracle.Direction = ParameterDirection.ReturnValue
+            rvCmd.Parameters.Add(paramOracle)
+
+         
+            rvConn.Open()
+            rvCmd.ExecuteNonQuery()
+            Dim vStr As String
+            vStr = rvCmd.Parameters.Item("pReturnValue").Value.ToString
+            lblDisplayOutput.Text = "SaleId: " & vStr & " is deleted from the table"
+            rvConn.Close()
+
+        Catch ex As OracleException
+            Select Case ex.Number
+                Case 20101
+                    lblDisplayOutput.Text = ex.Message.ToString
+                Case 20000
+                    lblDisplayOutput.Text = ex.Message.ToString
+            End Select
+        End Try
+
+
+
+    End Sub
+
+    Private Sub btnDeleteAllSales_Click(sender As System.Object, e As System.EventArgs) Handles btnDeleteAllSales.Click
+        Dim rvConn As New OracleConnection
+        rvConn = CreateConnection1()
+        Dim rvCmd As New OracleCommand
+        rvCmd.Connection = rvConn
+        
+
+        Try
+            rvConn.Open()
+            rvCmd.CommandText = "DELETE_ALL_SALES_FROM_DB"
+            rvCmd.CommandType = CommandType.StoredProcedure
+            rvCmd.ExecuteNonQuery()
+            lblDisplayOutput.Text = "Deletion Ok "
+        Catch ex As OracleException
+            Select Case ex.Number
+                Case 20000
+                    lblDisplayOutput.Text = ex.Message.ToString
+            End Select
+        End Try
+        rvConn.Close()
+    End Sub
+
+    Private Sub btnDeleteCustomer_Click(sender As System.Object, e As System.EventArgs) Handles btnDeleteCustomer.Click
+
+        Dim rvConn As New OracleConnection
+        rvConn = CreateConnection1()
+        Dim rvCmd As New OracleCommand
+        rvCmd.Connection = rvConn
+        rvCmd.Parameters.Add("pCustid", OracleDbType.Int16).Direction = ParameterDirection.Input
+        rvCmd.Parameters("pCustid").Value = Val(InputBox("Please Enter Customer ID:"))
+        Try
+            rvConn.Open()
+            rvCmd.CommandText = "DELETE_CUSTOMER_FROM_DB"
+            rvCmd.CommandType = CommandType.StoredProcedure
+            rvCmd.ExecuteNonQuery()
+            lblDisplayOutput.Text = "Deleted Customer Ok  "
+        Catch ex As OracleException
+            Select Case ex.Number
+                Case 20201
+                    lblDisplayOutput.Text = ex.Message.ToString
+                Case 20202
+                    lblDisplayOutput.Text = ex.Message.ToString
+                Case 20000
+                    lblDisplayOutput.Text = ex.Message.ToString
+            End Select
+        End Try
+        rvConn.Close()
+
+
+    End Sub
+
+    Private Sub btnDeleteProd_Click(sender As System.Object, e As System.EventArgs) Handles btnDeleteProd.Click
+        Dim rvConn As New OracleConnection
+        rvConn = CreateConnection1()
+        Dim rvCmd As New OracleCommand
+        rvCmd.Connection = rvConn
+        rvCmd.Parameters.Add("pprodid", OracleDbType.Int16).Direction = ParameterDirection.Input
+        rvCmd.Parameters("pprodid").Value = Val(InputBox("Please Enter Product ID:"))
+        Try
+            rvConn.Open()
+            rvCmd.CommandText = "DELETE_PROD_FROM_DB"
+            rvCmd.CommandType = CommandType.StoredProcedure
+            rvCmd.ExecuteNonQuery()
+            lblDisplayOutput.Text = "Deleted Product Ok  "
+        Catch ex As OracleException
+            Select Case ex.Number
+                Case 20301
+                    lblDisplayOutput.Text = ex.Message.ToString
+                Case 20302
+                    lblDisplayOutput.Text = ex.Message.ToString
+                Case 20000
+                    lblDisplayOutput.Text = ex.Message.ToString
+            End Select
+        End Try
+        rvConn.Close()
+
+    End Sub
+
+
+End Class
